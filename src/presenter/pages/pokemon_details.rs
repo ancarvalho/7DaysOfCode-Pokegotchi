@@ -1,20 +1,21 @@
-use crate::{domain::entities::{pokemon_details::PokemonDetails, my_pokemon::MyPokemon}, infra::repo::get_pokemon_info::get_pokemon_info, presenter::pages::{pokemon_adoption::pokemon_adoption, my_pokemon::my_pokemon}};
+use crate::domain::{
+  entities::{my_pokemon::MyPokemon, pokemon_details::PokemonDetails},
+  enums::screen_possibilities::ScreenPossibilities,
+};
 use anyhow::{Ok, Result};
 use std::io;
 
-pub async fn pokemon_details(pokemon: PokemonDetails) -> Result<()> {
+pub fn pokemon_details_page(pokemon: &PokemonDetails) -> Result<ScreenPossibilities> {
   // print!("{}", pokemon.get_pokemon().ascii_image);
 
-  let pokemon_info  = get_pokemon_info(pokemon.pokedex_name.clone()).await?;
-  println!("{}", pokemon_info);
+  // let pokemon_info = get_pokemon_info(pokemon.pokedex_name.clone()).await?;
+  // println!("{}", pokemon_info);
   println!("Digite 1 Voltar");
-  println!("Digite 2 Para Escolher {}", pokemon.name);
-  
+  println!("Digite 2 Para Escolher {}", pokemon.name.clone());
 
-  let mut index = String::new();
-  let stdin = io::stdin();
-  
-  'pokemon_details: loop {
+  loop {
+    let mut index = String::new();
+    let stdin = io::stdin();
     stdin.read_line(&mut index)?;
 
     let parsed_index: i8 = match index.trim().parse::<i8>() {
@@ -23,19 +24,18 @@ pub async fn pokemon_details(pokemon: PokemonDetails) -> Result<()> {
     };
 
     // let parsed_index: i8 = index.trim().parse::<i8>().expect("Digite um Numero");
-    match parsed_index {
+    return match parsed_index {
+      1 => Ok(ScreenPossibilities::PokemonAdoptionPage {
+        pokemon: pokemon.clone(),
+      }),
       2 => {
-        let my = &mut MyPokemon::new(pokemon);
-        let _ = my_pokemon(my);
-        // break 'pokemon_details;
-      },
-      1 => {
-        let _ = pokemon_adoption(pokemon.clone());
-        // break 'pokemon_details;
-      },
-      _ => panic!(),
+        let my = MyPokemon::new(pokemon.clone());
+        Ok(ScreenPossibilities::MyPokemonPage { my_pokemon: my })
+      
+      }
+      _ => Ok(ScreenPossibilities::Quit),
     };
-    break 'pokemon_details;
+    // TODO Check (may cause error)
   }
-  Ok(())
+  // Ok(ScreenPossibilities::Quit)
 }

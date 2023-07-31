@@ -1,8 +1,7 @@
 use super::pokemon_details::PokemonDetails;
-use anyhow::Result;
 use chrono::{prelude::*, Duration};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MyPokemon {
   pub pokemon: PokemonDetails,
   pub last_feed: Option<DateTime<Utc>>,
@@ -32,12 +31,6 @@ impl MyPokemon {
     self.last_played_with = Some(Utc::now());
 
     self
-
-    // Self {
-    //   pokemon: self.pokemon.clone(),
-    //   last_feed: self.last_feed,
-    //   last_played_with: Some(Utc::now()),
-    // }
   }
 
   pub fn check_pokemon_happiness(&self) {
