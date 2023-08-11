@@ -5,13 +5,15 @@ mod presenter;
 
 use anyhow::Result;
 
-use crate::domain::{utils::header::POKEGOTCHI, enums::screen_possibilities::ScreenPossibilities};
+use crate::domain::{utils::header::POKEGOTCHI, enums::screen_possibilities::ScreenPossibilities, entities::data::Data};
 
 #[tokio::main]
 async fn main() -> Result<()> {
+  // data geting update to slow
+  let mut data = Data::new();
   print!("{}", POKEGOTCHI);
   
-  let _ = ScreenPossibilities::start()?;
+  let _ = ScreenPossibilities::start(&mut data)?;
 
   Ok(())
 }

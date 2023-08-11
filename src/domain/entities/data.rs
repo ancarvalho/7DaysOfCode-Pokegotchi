@@ -1,7 +1,7 @@
 use super::{my_pokemon::MyPokemon, pokemon_details::PokemonDetails};
 
 #[derive(Debug, Clone)]
-struct Data {
+pub struct Data {
   pub name: Option<String>,
   pub pokemons: Vec<MyPokemon>,
 }
@@ -39,4 +39,9 @@ impl Data {
 
     return self;
   }
+
+
+  pub fn get_pokemon(&mut self, index: usize) -> &mut MyPokemon {
+    &mut self.pokemons[index]
+  } 
 }

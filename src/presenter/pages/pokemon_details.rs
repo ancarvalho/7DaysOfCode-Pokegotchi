@@ -1,11 +1,11 @@
 use crate::domain::{
-  entities::{my_pokemon::MyPokemon, pokemon_details::PokemonDetails},
+  entities::{pokemon_details::PokemonDetails, data::Data},
   enums::screen_possibilities::ScreenPossibilities,
 };
 use anyhow::{Ok, Result};
 use std::io;
 
-pub fn pokemon_details_page(pokemon: &PokemonDetails) -> Result<ScreenPossibilities> {
+pub fn pokemon_details_page(pokemon: &PokemonDetails, data: &mut Data) -> Result<ScreenPossibilities> {
   // print!("{}", pokemon.get_pokemon().ascii_image);
 
   // let pokemon_info = get_pokemon_info(pokemon.pokedex_name.clone()).await?;
@@ -29,8 +29,8 @@ pub fn pokemon_details_page(pokemon: &PokemonDetails) -> Result<ScreenPossibilit
         pokemon: pokemon.clone(),
       }),
       2 => {
-        let my = MyPokemon::new(pokemon.clone());
-        Ok(ScreenPossibilities::MyPokemonPage { my_pokemon: my })
+        data.add_pokemon(pokemon.clone());
+        Ok(ScreenPossibilities::MyPokemonsPage)
       
       }
       _ => Ok(ScreenPossibilities::Quit),

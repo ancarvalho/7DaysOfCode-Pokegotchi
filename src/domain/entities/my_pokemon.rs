@@ -22,7 +22,7 @@ impl MyPokemon {
     // &mut self.last_feed = &mut Some(Utc::now());
     self.last_feed = Some(Utc::now());
 
-    self
+    return self
   }
 
   pub fn play_with_pokemon(&mut self) -> &Self {
@@ -30,7 +30,7 @@ impl MyPokemon {
 
     self.last_played_with = Some(Utc::now());
 
-    self
+    return self
   }
 
   pub fn check_pokemon_happiness(&self) {

@@ -2,12 +2,12 @@ use std::io;
 
 use anyhow::{Ok, Result};
 
-use crate::domain::enums::{
+use crate::domain::{enums::{
   inital_pokemons::AvailablePokemons, screen_possibilities::ScreenPossibilities,
-};
+}, entities::data::Data};
 
-pub fn pokemon_choose_page(name: String) -> Result<ScreenPossibilities> {
-  println!("Ola {}", name);
+pub fn pokemon_choose_page(data: &Data) -> Result<ScreenPossibilities> {
+  println!("Ola {:#?}", &data.name);
 
   println!("Digite 1 Para Escolher Bubasauro");
   println!("Digite 2 Para Escolher Pikachu");

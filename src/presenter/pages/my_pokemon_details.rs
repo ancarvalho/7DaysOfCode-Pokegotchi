@@ -1,16 +1,19 @@
-use crate::domain::{entities::my_pokemon::MyPokemon, enums::screen_possibilities::ScreenPossibilities};
+use crate::domain::{entities::data::Data, enums::screen_possibilities::ScreenPossibilities};
 use anyhow::{Ok, Result};
 use std::io;
 
-pub fn my_pokemon_page(my_pokemon: &MyPokemon) -> Result<ScreenPossibilities> {
+pub fn my_pokemons_details_page(data: &mut Data, index: &usize) -> Result<ScreenPossibilities> {
   // print!("{}", pokemon.ascii_image);
 
 
-  let mut mutable_pokemon = my_pokemon.clone();
+  // let mut mutable_pokemon = my_pokemon.clone();
+
+  let my_pokemon = data.get_pokemon(index.clone());
   println!("Digite 1 Brincar com {}", my_pokemon.pokemon.name);
   println!("Digite 2 Para Alimentar {}", my_pokemon.pokemon.name);
   println!("Digite 3 Para Ver Felicidade {}", my_pokemon.pokemon.name);
   println!("Digite 4 Para Ver Fome {}", my_pokemon.pokemon.name);
+  // println!("Digite 5 Para Abandonar {}", my_pokemon.pokemon.name);
 
   println!("Digite qualquer outro numero pra sair");
 
@@ -26,21 +29,26 @@ pub fn my_pokemon_page(my_pokemon: &MyPokemon) -> Result<ScreenPossibilities> {
 
     match parsed_index {
       1 => {
-        mutable_pokemon.play_with_pokemon().check_pokemon_happiness();
+        my_pokemon.play_with_pokemon().check_pokemon_happiness();
         continue;
       }
       2 => {
-        mutable_pokemon.feed_pokemon().check_pokemon_hungry();
+        my_pokemon.feed_pokemon().check_pokemon_hungry();
         continue;
       }
       3 => {
-        mutable_pokemon.check_pokemon_happiness();
+        my_pokemon.check_pokemon_happiness();
         continue;
       }
       4 => {
-        mutable_pokemon.check_pokemon_hungry();
+        my_pokemon.check_pokemon_hungry();
         continue;
       }
+      // 5 => {
+      //   data.remove_pokemon(index);
+      //   continue;
+      // }
+
 
       _ => break 'pokemon_adoption,
     };

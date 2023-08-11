@@ -1,9 +1,9 @@
 use anyhow::Result;
 use std::io;
 
-use crate::domain::enums::screen_possibilities::ScreenPossibilities;
+use crate::domain::{enums::screen_possibilities::ScreenPossibilities, entities::data::Data};
 
-pub fn home_page() -> Result<ScreenPossibilities>  {
+pub fn home_page(data: &mut Data) -> Result<ScreenPossibilities>  {
   let mut username = String::new();
   let stdin = io::stdin();
 
@@ -16,7 +16,8 @@ pub fn home_page() -> Result<ScreenPossibilities>  {
       break;
     }
   }
+  data.change_name(username);
 
-  Ok(ScreenPossibilities::PokemonChoosePage { name: username })
+  Ok(ScreenPossibilities::PokemonChoosePage)
   
 }
