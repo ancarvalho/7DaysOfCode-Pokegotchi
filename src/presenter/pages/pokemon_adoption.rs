@@ -1,11 +1,17 @@
-use crate::domain::{
-  entities::{pokemon_details::PokemonDetails, data::Data},
-  enums::screen_possibilities::ScreenPossibilities,
+use crate::{
+  domain::{
+    entities::pokemon_details::PokemonDetails, enums::screen_possibilities::ScreenPossibilities,
+    repositories::PokegotchiRepositoryAbstract,
+  },
+  infra::repo::pokegotchi_repo_impl::PokegotchiRepoImpl,
 };
 use anyhow::{Ok, Result};
 use std::io;
 
-pub fn pokemon_adoption_page(pokemon: &PokemonDetails, data: &mut Data) -> Result<ScreenPossibilities> {
+pub async fn pokemon_adoption_page(
+  pokemon: &PokemonDetails,
+  pokegochi_repo: &PokegotchiRepoImpl,
+) -> Result<ScreenPossibilities> {
   // print!("{}", pokemon.ascii_image);
 
   println!("Digite 1 Para Ver Mais Detalhes");
@@ -29,10 +35,14 @@ pub fn pokemon_adoption_page(pokemon: &PokemonDetails, data: &mut Data) -> Resul
       }),
 
       2 => {
-        // let my = MyPokemon::new(pokemon.clone());
-        data.add_pokemon(pokemon.clone());
-        return Ok(ScreenPossibilities::MyPokemonsPage);
-        // break 'pokemon_adoption;
+        match pokegochi_repo.add_pokemon(pokemon.clone()).await {
+          core::result::Result::Ok(_v) => return Ok(ScreenPossibilities::MyPokemonsPage),
+          Err(m) => {
+            println!("{}", m.to_string());
+            return Ok(ScreenPossibilities::MyPokemonsPage);
+          }
+        };
+        // return Ok(ScreenPossibilities::MyPokemonsPage);
       }
       3 => continue,
       _ => Ok(ScreenPossibilities::Quit),

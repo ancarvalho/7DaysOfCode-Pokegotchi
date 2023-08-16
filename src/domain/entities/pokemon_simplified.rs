@@ -12,9 +12,7 @@ pub struct PokemonSimplified {
 
 impl Display for PokemonSimplified {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-      write!(f, "O Pokemon {}, Tem {} de Altura e {} de peso e habilidades {}", self.name, self.height, self.weight, self.abilities.join(", "))
-      
-      
+      write!(f, "O Pokemon {}, Tem {} de Altura e {} de peso e habilidades {}", self.name, self.height, self.weight, self.abilities.join(", "))    
   }
 }
 

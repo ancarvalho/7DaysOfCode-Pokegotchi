@@ -1,19 +1,19 @@
 use anyhow::{Ok, Result};
 use std::io;
 
-use crate::domain::{
-  entities::data::Data,
-  enums::screen_possibilities::ScreenPossibilities,
-};
+use crate::{domain::{
 
-pub fn my_pokemons_page(data: &mut Data) -> Result<ScreenPossibilities> {
-  println!("Yo {:#?}", &data.name);
-  let pokemons_size = data.pokemons.len().clone();
+  enums::screen_possibilities::ScreenPossibilities, repositories::PokegotchiRepositoryAbstract,
+}, infra::repo::pokegotchi_repo_impl::PokegotchiRepoImpl};
 
-  for i in 0..pokemons_size {
+pub async fn my_pokemons_page(pokegochi_repo: &PokegotchiRepoImpl) -> Result<ScreenPossibilities> {
+  println!("Yo {:#?}", pokegochi_repo.get_trainer_name().await?);
+  let pokemons_size = pokegochi_repo.get_pokemons().await?;
+
+  for i in 0..pokemons_size.len() {
     println!(
       "Para Selecionar {}, digite {}",
-      &data.get_pokemon(i).pokemon.name,
+      pokemons_size[i].name,
       i.to_string()
     )
   }
@@ -30,9 +30,9 @@ pub fn my_pokemons_page(data: &mut Data) -> Result<ScreenPossibilities> {
       core::result::Result::Err(_) => continue,
     };
 
-    if Vec::from_iter(0..pokemons_size).contains(&parsed_index) {
+    if Vec::from_iter(0..pokemons_size.len()).contains(&parsed_index) {
       return Ok(ScreenPossibilities::MyPokomonDetailsPage {
-        index: parsed_index,
+        index: pokemons_size[parsed_index].id.try_into()?,
       });
     }
 

@@ -2,12 +2,12 @@ use std::io;
 
 use anyhow::{Ok, Result};
 
-use crate::domain::{enums::{
+use crate::{domain::{enums::{
   inital_pokemons::AvailablePokemons, screen_possibilities::ScreenPossibilities,
-}, entities::data::Data};
+}, repositories::PokegotchiRepositoryAbstract}, infra::repo::pokegotchi_repo_impl::PokegotchiRepoImpl};
 
-pub fn pokemon_choose_page(data: &Data) -> Result<ScreenPossibilities> {
-  println!("Ola {:#?}", &data.name);
+pub async fn pokemon_choose_page( pokegochi_repo: &PokegotchiRepoImpl) -> Result<ScreenPossibilities> {
+  println!("Ola {:#?}", pokegochi_repo.get_trainer_name().await?);
 
   println!("Digite 1 Para Escolher Bubasauro");
   println!("Digite 2 Para Escolher Pikachu");

@@ -1,36 +1,33 @@
-use super::pokemon_details::PokemonDetails;
 use chrono::{prelude::*, Duration};
+use serde::{Deserialize, Serialize};
+use sqlx::FromRow;
 
-#[derive(Debug, Clone)]
+
+
+#[derive(Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct MyPokemon {
-  pub pokemon: PokemonDetails,
-  pub last_feed: Option<DateTime<Utc>>,
-  pub last_played_with: Option<DateTime<Utc>>,
+  pub id: i8,
+  pub name: String,
+  pub pokedex_name: String,
+  pub last_feed: Option<String>,
+  pub last_played_with: Option<String>,
 }
-
 impl MyPokemon {
-  pub fn new(pokemon: PokemonDetails) -> MyPokemon {
-    MyPokemon {
-      pokemon,
-      last_feed: None,
-      last_played_with: None,
-    }
-  }
+
 
   pub fn feed_pokemon(&mut self) -> &Self {
     println!("Seu Pokemon foi Alimentado");
-    // &mut self.last_feed = &mut Some(Utc::now());
-    self.last_feed = Some(Utc::now());
+    self.last_feed = Some(Utc::now().to_string());
 
-    return self
+    return self;
   }
 
   pub fn play_with_pokemon(&mut self) -> &Self {
     println!("Você Brincou Com Seu Pokemon");
 
-    self.last_played_with = Some(Utc::now());
+    self.last_played_with = Some(Utc::now().to_string());
 
-    return self
+    return self;
   }
 
   pub fn check_pokemon_happiness(&self) {
@@ -45,10 +42,10 @@ impl MyPokemon {
   }
 
   pub fn check_pokemon_hungry(&self) {
-    let last_time = get_duration(&self.last_played_with);
+    let last_time = get_duration(&self.last_feed);
 
     match last_time.num_minutes() {
-      1..=10 => println!("Seu Pokemon Esta Alimentado"),
+      0..=10 => println!("Seu Pokemon Esta Alimentado"),
       11..=30 => println!("Seu Pokemon Esta Com Fome"),
       31..=60 => println!("Seu Pokemon Esta Faminto"),
       _ => println!("Seu Pokemon Esta Morto de Fome"),
@@ -57,9 +54,13 @@ impl MyPokemon {
 }
 
 // TODO move to Utils
-pub fn get_duration(time: &Option<DateTime<Utc>>) -> Duration {
+pub fn get_duration(time: &Option<String>) -> Duration {
+  // const parsed_item: DateTime<Utc> = DateTime::parse_from_rfc2822(time).unwrap_or(Duration::days(365));
   match time.clone() {
-    Some(time) => Utc::now() - time,
+    Some(time) => {
+      let now_parsed: DateTime<Utc> = time.parse().unwrap_or(Utc::now());
+      now_parsed - Utc::now()
+    }
     None => Duration::days(365),
   }
 }

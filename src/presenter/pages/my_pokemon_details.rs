@@ -1,40 +1,57 @@
-use crate::domain::{entities::data::Data, enums::screen_possibilities::ScreenPossibilities};
+use crate::{
+  domain::{
+    enums::screen_possibilities::ScreenPossibilities, repositories::PokegotchiRepositoryAbstract,
+  },
+  infra::repo::pokegotchi_repo_impl::PokegotchiRepoImpl,
+};
 use anyhow::{Ok, Result};
 use std::io;
 
-pub fn my_pokemons_details_page(data: &mut Data, index: &usize) -> Result<ScreenPossibilities> {
+pub async fn my_pokemons_details_page(
+  pokegochi_repo: &PokegotchiRepoImpl,
+  index: &usize,
+) -> Result<ScreenPossibilities> {
   // print!("{}", pokemon.ascii_image);
-
 
   // let mut mutable_pokemon = my_pokemon.clone();
 
-  let my_pokemon = data.get_pokemon(index.clone());
-  println!("Digite 1 Brincar com {}", my_pokemon.pokemon.name);
-  println!("Digite 2 Para Alimentar {}", my_pokemon.pokemon.name);
-  println!("Digite 3 Para Ver Felicidade {}", my_pokemon.pokemon.name);
-  println!("Digite 4 Para Ver Fome {}", my_pokemon.pokemon.name);
-  // println!("Digite 5 Para Abandonar {}", my_pokemon.pokemon.name);
+  let mut my_pokemon = pokegochi_repo
+    .get_pokemon(index.clone().try_into()?)
+    .await?;
+  println!("Digite 0 para Voltar");
+  println!("Digite 1 Brincar com {}", my_pokemon.name);
+  println!("Digite 2 Para Alimentar {}", my_pokemon.name);
+  println!("Digite 3 Para Ver Felicidade {}", my_pokemon.name);
+  println!("Digite 4 Para Ver Fome {}", my_pokemon.name);
+  println!("Digite 5 Para Abandonar {}", my_pokemon.name);
 
   println!("Digite qualquer outro numero pra sair");
 
   'pokemon_adoption: loop {
-    let mut index = String::new();
+    let mut index_str = String::new();
     let stdin = io::stdin();
-    stdin.read_line(&mut index)?;
+    stdin.read_line(&mut index_str)?;
 
-    let parsed_index: i8 = match index.trim().parse::<i8>() {
+    let parsed_index: i8 = match index_str.trim().parse::<i8>() {
       core::result::Result::Ok(num) => num,
       core::result::Result::Err(_) => continue,
     };
 
     match parsed_index {
+      0 => return Ok(ScreenPossibilities::MyPokemonsPage),
       1 => {
         my_pokemon.play_with_pokemon().check_pokemon_happiness();
-        continue;
+        pokegochi_repo
+          .update_pokemon_played(index.clone().try_into()?)
+          .await?;
+        return Ok(ScreenPossibilities::MyPokomonDetailsPage { index: index.clone() });
       }
       2 => {
         my_pokemon.feed_pokemon().check_pokemon_hungry();
-        continue;
+        pokegochi_repo
+          .update_pokemon_feed(index.clone().try_into()?)
+          .await?;
+        return Ok(ScreenPossibilities::MyPokomonDetailsPage { index: index.clone() });
       }
       3 => {
         my_pokemon.check_pokemon_happiness();
@@ -44,11 +61,12 @@ pub fn my_pokemons_details_page(data: &mut Data, index: &usize) -> Result<Screen
         my_pokemon.check_pokemon_hungry();
         continue;
       }
-      // 5 => {
-      //   data.remove_pokemon(index);
-      //   continue;
-      // }
-
+      5 => {
+        pokegochi_repo
+          .remove_pokemon(index.clone().try_into()?)
+          .await?;
+        return Ok(ScreenPossibilities::MyPokemonsPage);
+      }
 
       _ => break 'pokemon_adoption,
     };

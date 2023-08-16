@@ -1,9 +1,9 @@
 use anyhow::Result;
 use std::io;
 
-use crate::domain::{enums::screen_possibilities::ScreenPossibilities, entities::data::Data};
+use crate::{domain::{enums::screen_possibilities::ScreenPossibilities, repositories::PokegotchiRepositoryAbstract}, infra::repo::pokegotchi_repo_impl::PokegotchiRepoImpl};
 
-pub fn home_page(data: &mut Data) -> Result<ScreenPossibilities>  {
+pub async fn home_page(pokegochi_repo: &PokegotchiRepoImpl) -> Result<ScreenPossibilities>  {
   let mut username = String::new();
   let stdin = io::stdin();
 
@@ -16,7 +16,7 @@ pub fn home_page(data: &mut Data) -> Result<ScreenPossibilities>  {
       break;
     }
   }
-  data.change_name(username);
+  pokegochi_repo.create_trainer(username).await?;
 
   Ok(ScreenPossibilities::PokemonChoosePage)
   
