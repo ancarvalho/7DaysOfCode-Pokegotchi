@@ -2,3 +2,5 @@
 .vscode/*
 .vscode/settings.json
 persistent.db
+persistent.db-wal
+persistent.db-shm

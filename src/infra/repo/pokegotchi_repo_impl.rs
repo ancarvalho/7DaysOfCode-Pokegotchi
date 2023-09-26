@@ -1,10 +1,10 @@
 use async_trait::async_trait;
 use chrono::Utc;
-use sqlx::{SqlitePool, any};
+use sqlx::SqlitePool;
 
 use crate::domain::{
-  entities::{my_pokemon::MyPokemon, pokemon_details::PokemonDetails},
-  repositories::PokegotchiRepositoryAbstract,
+  entities::{my_pokemon::MyPokemon, pokemon_details::PokemonDetails, trainer::Trainer},
+  repositories::PokegotchiRepositoryAbstract, 
 };
 use anyhow::{Ok, Result};
 
@@ -34,7 +34,7 @@ impl PokegotchiRepositoryAbstract for PokegotchiRepoImpl {
     Ok(rec)
   }
 
-    async fn get_pokemon(&self, id: i8) -> Result<MyPokemon> {
+  async fn get_pokemon(&self, id: i8) -> Result<MyPokemon> {
     let rec = sqlx::query_as::<_, MyPokemon>(
       "
         SELECT id, name, pokedex_name, last_feed, last_played_with
@@ -52,21 +52,21 @@ impl PokegotchiRepositoryAbstract for PokegotchiRepoImpl {
   async fn add_pokemon(&self, pokemon: PokemonDetails) -> Result<bool> {
     // TODO add later on use-case
     let count = self.get_pokemons_count().await?;
-    if count >=3 {
-      return Err(anyhow::Error::msg("Too Many Pokemons")) 
+    if count >= 3 {
+      return Err(anyhow::Error::msg("Too Many Pokemons"));
     }
 
     let now: String = Utc::now().to_string();
-    let rec = sqlx::query!(
+    let rec = sqlx::query(
       "
         INSERT INTO pokegotchis (name, pokedex_name, last_feed, last_played_with)
         VALUES ($1, $2, $3, $4)
       ",
-      pokemon.name,
-      pokemon.pokedex_name,
-      now,
-      now
     )
+    .bind(pokemon.name)
+    .bind(pokemon.pokedex_name)
+    .bind(now.clone())
+    .bind(now)
     .execute(&self.pool)
     .await?
     .rows_affected();
@@ -75,13 +75,13 @@ impl PokegotchiRepositoryAbstract for PokegotchiRepoImpl {
   }
 
   async fn create_trainer(&self, name: String) -> Result<bool> {
-    let rec = sqlx::query!(
+    let rec = sqlx::query(
       "
         INSERT INTO trainer (name)
         VALUES ($1)
       ",
-      name
     )
+    .bind(name)
     .execute(&self.pool)
     .await?
     .rows_affected();
@@ -90,11 +90,10 @@ impl PokegotchiRepositoryAbstract for PokegotchiRepoImpl {
   }
 
   async fn get_trainer_name(&self) -> Result<String> {
-    let rec = sqlx::query!(
+    let rec = sqlx::query_as::<_, Trainer>(
       "
-        SELECT name
+        SELECT *
         FROM trainer
-      
     ",
     )
     .fetch_one(&self.pool)
@@ -103,14 +102,14 @@ impl PokegotchiRepositoryAbstract for PokegotchiRepoImpl {
     Ok(rec.name)
   }
   async fn update_trainer_name(&self, name: String) -> Result<bool> {
-    let rec = sqlx::query!(
+    let rec = sqlx::query(
       "
         UPDATE trainer 
         SET name = $1
         
       ",
-      name
     )
+    .bind(name)
     .execute(&self.pool)
     .await?
     .rows_affected();
@@ -119,13 +118,13 @@ impl PokegotchiRepositoryAbstract for PokegotchiRepoImpl {
   }
 
   async fn remove_pokemon(&self, id: i8) -> Result<bool> {
-    let rec = sqlx::query!(
+    let rec = sqlx::query(
       "
         DELETE FROM pokegotchis
         WHERE  id = $1
       ",
-      id
     )
+    .bind(id)
     .execute(&self.pool)
     .await?
     .rows_affected();
@@ -148,16 +147,16 @@ impl PokegotchiRepositoryAbstract for PokegotchiRepoImpl {
 
   async fn update_pokemon_played(&self, id: i8) -> Result<bool> {
     let now = Utc::now().to_string();
-    let rec = sqlx::query!(
+    let rec = sqlx::query(
       "
         UPDATE pokegotchis
         SET last_played_with = $2
         WHERE id = $1
       
     ",
-      id,
-      now
     )
+    .bind(id)
+    .bind(now)
     .execute(&self.pool)
     .await?
     .rows_affected();
@@ -166,16 +165,16 @@ impl PokegotchiRepositoryAbstract for PokegotchiRepoImpl {
   }
   async fn update_pokemon_feed(&self, id: i8) -> Result<bool> {
     let now = Utc::now().to_string();
-    let rec = sqlx::query!(
+    let rec = sqlx::query(
       "
         UPDATE pokegotchis
         SET last_feed = $2
         WHERE id = $1
       
     ",
-      id,
-      now
     )
+    .bind(id)
+    .bind(now)
     .execute(&self.pool)
     .await?
     .rows_affected();
